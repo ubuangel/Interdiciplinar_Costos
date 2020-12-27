@@ -1,0 +1,62 @@
+{%extends 'repbase.html'%}
+{% load i18n %}
+
+<!DOCTYPE html>
+
+<head> {%block head%}
+    <title>{% trans "Sales" %}</title>
+    <script>
+        $('document').ready(function () {
+            $('.nav-item').find('li.active').removeClass('active');
+            $('#sales').addClass('active');
+            $.ajax({
+                 url: "/api/fee_progVS/",
+                 type: "GET",
+                 success: function(data){
+                     data['results'].forEach(el => {$('#fee_progSelect').append("<option value='"+el['name']+"'>"+el['name']+"</option>");});
+                 }
+             });
+        });
+    </script>
+    {%endblock%}
+</head>
+
+<body>
+    {%block body%}
+    <h3 class="titels">{% trans 'Sales Report' %}</h3>
+    <div id="myGrid" class="ag-theme-balham gridclass"></div>
+    <script>
+        // specify the columns
+        var columnDefs = [
+            { headerName: {% trans "'Product Type'" %}, field: "product_type", sortable: true, filter: true, checkboxSelection: true },
+            { headerName: {% trans "'Quantity'" %}, field: "quant", sortable: true, filter: true },
+            { headerName: {% trans "'Sale Price'" %}, field: "sale_price", sortable: true, filter: true ,valueGetter: function(params) { return params.data.sale_price.toFixed(2); }},
+            { headerName: {% trans "'Unit Profit'" %}, field: "unit_profit", sortable: true, filter: true ,valueGetter: function(params) { return params.data.unit_profit.toFixed(2); }},
+            { headerName: {% trans "'Unit Profit %'" %}, field: "profit_percent", sortable: true, filter: true ,valueGetter: function(params) { return params.data.profit_percent.toFixed(2); }},
+            { headerName: {% trans "'Total Profit'" %}, field: "total_profit", sortable: true, filter: true ,valueGetter: function(params) { return params.data.total_profit.toFixed(2); }},
+            { headerName: {% trans "'Order ID'" %}, field: "order_id", sortable: true, filter: true },
+            { headerName: {% trans "'Date'" %}, field: "date", sortable: true, filter: true },
+            { headerName: {% trans "'Batch ID'" %}, field: "batch_id", filter: true }];
+        // let the grid know which columns and what data to use
+        var gridOptions = { paginationAutoPageSize:'true',pagination:'true', columnDefs: columnDefs, rowSelection: 'multiple', onFirstDataRendered(params) {params.api.sizeColumnsToFit();} };
+        // create the grid passing in the div to use together with the columns & data we want to use
+        new agGrid.Grid(document.querySelector('#myGrid'), gridOptions);
+        $.ajax({url: "/api/salesVS/",type: "GET",success: function(data){gridOptions.api.setRowData(data);}});
+        function Deletesales() {
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                    }
+                }
+            });
+            var selectedNodes = gridOptions.api.getSelectedNodes()
+            var selectedData = selectedNodes.map(function (node) { return node.data })
+            var order_id = selectedData.map(function (node) { return node.order_id }).join(',')
+            $.ajax({ type: "DELETE", url: '/api/salescustom/' + order_id + '/', headers: {'fee_prog': $('#fee_progSelect').val()}});
+        }
+    </script>
+    {%endblock%}
+</body>
+
+</html>

@@ -1,0 +1,63 @@
+{%extends 'repbase.html'%}
+{% load i18n %}
+
+<!DOCTYPE html>
+
+<head> {%block head%}
+  <title>{% trans "Batches" %}</title>
+  <script>
+    $('document').ready(function () {
+      $('.nav-item').find('li.active').removeClass('active');
+      $('#batches').addClass('active');
+    });
+
+</script>
+  {%endblock%}
+
+</head>
+
+<body>
+  {%block body%}
+  <h3 class="titels">{% trans "Batches Report" %}</h3>
+  <!-- <button onclick="DeleteBatch()">{% trans "Delete Batch" %}</button> -->
+  <div id="myGrid" class="ag-theme-balham gridclass"></div>
+  <script type="text/javascript" charset="utf-8">
+      // specify the columns
+    var columnDefs = [
+      { headerName: {% trans "'Product Type'" %}, field: "product_type", sortable: true, filter: true,checkboxSelection: true },
+      { headerName: {% trans "'Unit Price'" %}, field: "unit_price", sortable: true, filter: true,valueGetter: function(params) { return params.data.unit_price.toFixed(2); }},
+      { headerName: {% trans "'Quantity'" %}, field: "quant", sortable: true, filter: true },
+      { headerName: {% trans "'Batch ID'" %}, field: "batch_id", sortable: true, filter: true },
+      { headerName: {% trans "'Stock Cost'" %}, field: "total_cost", sortable: true, filter: true ,valueGetter: function(params) { return params.data.total_cost.toFixed(2); }},
+      { headerName: {% trans "'Min selling price'" %}, field: "min_selling", sortable: true, filter: true ,valueGetter: function(params) { return params.data.min_selling.toFixed(2); }},
+      { headerName: {% trans "'Selling price W/ 10% profit'" %}, field: "profit10", sortable: true, filter: true ,valueGetter: function(params) { return params.data.profit10.toFixed(2); }},
+      { headerName: {% trans "'Fee Prog'" %}, field:"fee_prog", sortable: true, filter: true },
+      { headerName: {% trans "'Status'" %}, field:"status", sortable: true, filter: true,editable:true, cellEditor: 'agSelectCellEditor', cellEditorParams: {values: {{batchStatus|safe}} },onCellValueChanged(data){changeShipmentState(data);} },
+      { headerName: {% trans "'Addition Date'" %}, field:"date", sortable: true, filter: true }];
+
+
+    // let the grid know which columns and what data to use
+    var gridOptions = {paginationAutoPageSize:'true',pagination:'true', columnDefs: columnDefs,  rowSelection: 'multiple', onFirstDataRendered(params) {params.api.sizeColumnsToFit();}};
+    // create the grid passing in the div to use together with the columns & data we want to use
+    new agGrid.Grid(document.querySelector('#myGrid'), gridOptions);
+    fetch('/api/batchVS/').then(function (response) {return response.json();}).then(function (data) {gridOptions.api.setRowData(data);})
+    
+//     function DeleteBatch() {
+//       $.ajaxSetup({
+//     beforeSend: function(xhr, settings) {
+//         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+//             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+//         }
+//     }
+// });
+//     var selectedNodes = gridOptions.api.getSelectedNodes()  
+//     var selectedData = selectedNodes.map( function(node) { return node.data })
+//     var batch_id = selectedData.map( function(node) { return node.batch_id }).join(',')
+//     $.ajax({type: "DELETE",url: '/api/batchVS/' + batch_id+'/'});
+// }
+  </script>
+
+  {%endblock%}
+</body>
+
+</html>

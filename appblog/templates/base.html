@@ -1,0 +1,87 @@
+{% load i18n %}
+
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}
+{% if LANGUAGE_CODE == 'en' %}
+<html dir="ltr" lang="en">
+{% elif LANGUAGE_CODE == 'ar' %}
+<html dir="rtl" lang="ar">
+{% endif %}
+
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>  
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  {%block head%}
+  <title>Base</title>
+  {%endblock%}
+  
+  {%load static%}
+  <link rel="stylesheet" type="text/css" href="{%static "css/custom.css" %}">
+  {%load static%}
+  <script src="{%static "js/custom.js" %}"></script>
+</head>
+    <script>
+    $('document').ready(function(){
+        {% if LANGUAGE_CODE == 'ar' %}
+        document.getElementsByClassName("container")[0].classList.add("contanerform");
+        {% endif %}});
+    </script>
+    
+{%if user.is_authenticated%}
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: rgb(40, 180, 99);">
+      
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo01" aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
+            <ul class="navbar-nav justify-content-center">
+                <li id="aproduct"><a class="nav-link" href="/app/addpro">{% trans "Add Product" %}</a></li>
+                <li id="aitem"><a class="nav-link" href="/app/addit">{% trans "Add Item" %}</a></li>
+                <li id="ritem"><a class="nav-link" href="/app/rmit">{% trans "Remove Item" %}</a></li>
+                <li id="sales"><a class="nav-link" href="/rep/sales">{% trans "Sales" %}</a></li>
+                <li id="products"><a class="nav-link" href="/rep/products">{% trans "Products" %}</a></li>
+                <li id="batches"><a class="nav-link" href="/rep/batches">{% trans "Batches" %}</a></li>
+                <li id="statistics"><a class="nav-link" href="/rep/statistics">{% trans "Statistics" %}</a></li>
+                <li id="rsaleorder"><a class="nav-link" href="/app/rmsaleorder">{% trans "Remove Sale order" %}</a></li>
+                  <a class="nav-link" href="/app/calc">{% trans "Calculate Profit" %}</a>
+                  <a  class="nav-link" href="{% url 'logout'%}">{% trans "Log Out" %}</a>
+                  <form action="{% url 'set_language' %}" method="post">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path|slice:'3:' }}" />
+                    {% get_current_language as LANGUAGE_CODE %}
+                    {% if LANGUAGE_CODE == 'en' %}
+                    <input name="language" type="hidden" value="en" />
+                   
+                    {% elif LANGUAGE_CODE == 'ar' %}
+                    <input name="language" type="hidden" value="en" />
+                    <input type="submit" value="English" class="nav-link langbutton" />
+                    {% endif %}
+                  </form>
+                </ul>
+        </div>
+      </nav>
+  <br>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+  {%load static%}
+  {%block body%}
+  {%endblock%}
+
+</body>
+{% else %}
+<br>
+<br>
+<br>
+<div class="container">
+  <p>{% trans "You are not logged in" %}</p>
+  <a href="{% url 'login' %}">{% trans "Login" %}</a>
+</div>
+{% endif %}
+
+</html>
